@@ -37,12 +37,19 @@ def find_words_weak(text, niz):
     return mn
 
 
-def find_words(text, substring):
+def find_words_a(text, substring):
+    rx = r'\b\w*' + substring 
+    matches = re.findall(rx, text)
+    return set(matches)
+
+def find_words_b(text, substring):
     rx = r'\b\w*' + substring + r'\w*\b'
     matches = re.findall(rx, text)
     return set(matches)
 
- 
+print(find_words_a(test_text, "de"))
+print(find_words_b(test_text, "de"))
+
 ###############################################################################
 # 2) Sestavite funkcijo [find_prefix], ki vrne množico vseh besed, ki se
 #    pojavijo v nizu in imajo dano predpono.
@@ -51,8 +58,12 @@ def find_words(text, substring):
 # {'zibala', 'zibel', 'zibelko'}
 ###############################################################################
 
-def find_prefix(test_text, niz):
-    x = r""
+def find_prefix(text, niz):
+    rx = r'\b' + niz + r'\w*\b'
+    matches = re.findall(rx, text)
+    return set(matches)
+
+print(find_prefix(test_text, 'zi'))
 
 ###############################################################################
 # 3) Sestavite funkcijo [find_suffix], ki vrne množico vseh besed, ki se
@@ -62,6 +73,12 @@ def find_prefix(test_text, niz):
 # {'zibala', 'razveselila', 'prestrašila', 'šivala', 'opazila', 'tla'}
 ###############################################################################
 
+def find_suffix(text, niz):
+    rx = r'\b\w*' + niz + r'\b'
+    matches = re.findall(rx, text)
+    return set(matches)
+
+print(find_suffix(test_text, 'la'))
 
 ###############################################################################
 # 4) Sestavite funkcijo [double_letters], ki sprejme niz in vrne množico vseh
@@ -70,3 +87,16 @@ def find_prefix(test_text, niz):
 # >>> double_letters('A volunteer is worth twenty pressed men.')
 # {'volunteer', 'pressed'}
 ###############################################################################
+
+def double_letters(text):
+    matches = set()
+    for i in "qwertzuiopšđasdfghjklčćžyxcvbnm":
+        rx = r'\b\w*[' + i + r']{2}\w*\b'
+        match = set(re.findall(rx, text))
+        matches = matches.union(match)
+    return matches
+
+print(double_letters('A volunteer is worth twenty pressed men.'))
+
+
+
