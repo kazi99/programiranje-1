@@ -92,6 +92,9 @@ def double_letters(text):
     matches = set()
     for i in "qwertzuiopšđasdfghjklčćžyxcvbnm":
         rx = r'\b\w*[' + i + r']{2}\w*\b'
+
+# rx = r'\b (\w* (\w)\2 \w*) \b'
+
         match = set(re.findall(rx, text))
         matches = matches.union(match)
     return matches
