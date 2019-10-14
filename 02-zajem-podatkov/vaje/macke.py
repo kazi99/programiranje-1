@@ -1,5 +1,7 @@
 import csv
 import os
+import re
+import requests
 
 ###############################################################################
 # Najprej definirajmo nekaj pomožnih orodij za pridobivanje podatkov s spleta.
@@ -8,9 +10,9 @@ import os
 # definiratje URL glavne strani bolhe za oglase z mačkami
 cats_frontpage_url = 'http://www.bolha.com/zivali/male-zivali/macke/'
 # mapa, v katero bomo shranili podatke
-cat_directory = 'TODO'
+cat_directory = 'cats-directory'
 # ime datoteke v katero bomo shranili glavno stran
-frontpage_filename = 'TODO'
+frontpage_filename = 'bolha_cats.html'
 # ime CSV datoteke v katero bomo shranili podatke
 csv_filename = 'TODO'
 
@@ -21,13 +23,13 @@ def download_url_to_string(url):
     """
     try:
         # del kode, ki morda sproži napako
-        page_content = 'TODO'
+        page_content = requests.get(cats_frontpage_url)
     except 'TODO':
         # koda, ki se izvede pri napaki
         # dovolj je če izpišemo opozorilo in prekinemo izvajanje funkcije
         raise NotImplementedError()
     # nadaljujemo s kodo če ni prišlo do napake
-    raise NotImplementedError()
+    return page_content.text
 
 
 def save_string_to_file(text, directory, filename):
@@ -48,8 +50,8 @@ def save_string_to_file(text, directory, filename):
 def save_frontpage(page, directory, filename):
     """Funkcija shrani vsebino spletne strani na naslovu "page" v datoteko
     "directory"/"filename"."""
-    raise NotImplementedError()
-
+    page_data = download_url_to_string(cats_frontpage_url)
+    save_string_to_file(page_data, cat_directory, frontpage_filename)
 
 ###############################################################################
 # Po pridobitvi podatkov jih želimo obdelati.
@@ -58,8 +60,9 @@ def save_frontpage(page, directory, filename):
 
 def read_file_to_string(directory, filename):
     """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
-    raise NotImplementedError()
-
+    full_name = os.path.join(cat_directory, filename)
+    with open(full_name, 'r', encoding='utf-8') as f:
+        return f.read()
 
 # Definirajte funkcijo, ki sprejme niz, ki predstavlja vsebino spletne strani,
 # in ga razdeli na dele, kjer vsak del predstavlja en oglas. To storite s
@@ -68,9 +71,11 @@ def read_file_to_string(directory, filename):
 
 
 def page_to_ads(page_content):
-    """Funkcija poišče posamezne ogllase, ki se nahajajo v spletni strani in
+    """Funkcija poišče posamezne oglase, ki se nahajajo v spletni strani in
     vrne njih seznam"""
-    raise NotImplementedError()
+    print(page_content)
+    exp = r'<div class="coloumn content">(.*?)<div class="clear">'
+    return re.findall(exp, page_content, re.DOTALL)
 
 
 # Definirajte funkcijo, ki sprejme niz, ki predstavlja oglas, in izlušči
@@ -144,8 +149,11 @@ def main(redownload=True, reparse=True):
     """
     # Najprej v lokalno datoteko shranimo glavno stran
 
+    save_frontpage(cats_frontpage_url, cat_directory, frontpage_filename)
     # Iz lokalne (html) datoteke preberemo podatke
-
+    
+    #print(read_file_to_string(frontpage_filename, frontpage_filename))
+    print(page_to_ads(read_file_to_string(frontpage_filename, frontpage_filename)))
     # Podatke prebermo v lepšo obliko (seznam slovarjev)
 
     # Podatke shranimo v csv datoteko
@@ -153,8 +161,6 @@ def main(redownload=True, reparse=True):
     # Dodatno: S pomočjo parameteov funkcije main omogoči nadzor, ali se
     # celotna spletna stran ob vsakem zagon prense (četudi že obstaja)
     # in enako za pretvorbo
-
-    raise NotImplementedError()
 
 
 if __name__ == '__main__':
