@@ -116,7 +116,7 @@ let rec get' indeks = function
 let rec double = function
   | [] -> []
   | x :: xs -> x :: (x :: double xs)
-  | x :: xs -> [x;x] :: double xs
+(*  | x :: xs -> [x;x] :: double xs *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [insert x k list] na [k]-to mesto seznama [list] vrine element [x].
@@ -141,7 +141,15 @@ let rec insert = ()
  - : int list * int list = ([1; 2; 3; 4; 5], [])
 [*----------------------------------------------------------------------------*)
 
-let rec divide = ()
+let rec divide k sez = 
+  if k <= 0 then
+    ([], sez)
+  else
+    match sez with
+    | x :: xs -> 
+      let prej, potem = divide (k - 1) xs in
+      (x :: prej, potem)
+    | [] -> ([], [])
 
 (*----------------------------------------------------------------------------*]
  Funkcija [rotate n list] seznam zavrti za [n] mest v levo. Predpostavimo, da
