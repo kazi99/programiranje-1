@@ -8,7 +8,7 @@
  - : int = 4
 [*----------------------------------------------------------------------------*)
 
-let rec square = ()
+let square x = x * x
 
 (*----------------------------------------------------------------------------*]
  Funkcija [middle_of_triple] vrne srednji element trojice.
@@ -17,7 +17,13 @@ let rec square = ()
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-let rec middle_of_triple = ()
+let middle_of_triple (_,b,_) = b
+
+(* drug nacin*)
+
+let middle x = 
+  let (_,b,_) = x
+  in b
 
 (*----------------------------------------------------------------------------*]
  Funkcija [starting_element] vrne prvi element danega seznama. V primeru
@@ -27,7 +33,21 @@ let rec middle_of_triple = ()
  - : int = 1
 [*----------------------------------------------------------------------------*)
 
-let rec starting_element = ()
+let starting_element = function
+  | [] -> failwith "ERROR"
+  | x :: _ -> x
+
+
+let starting_element' sez = 
+  match sez with
+  | [] -> failwith "ERROR"
+  | x :: _ -> x
+
+let starting_element'' sez = 
+  match sez with
+  | x :: _ -> x             (* tole ze ugotovi da bo argument seznam *) 
+  | _ -> failwith "ERROR"   (* za vse ostale vzorce*)
+
 
 (*----------------------------------------------------------------------------*]
  Funkcija [multiply] zmnoži vse elemente seznama. V primeru praznega seznama
@@ -37,7 +57,14 @@ let rec starting_element = ()
  - : int = 48
 [*----------------------------------------------------------------------------*)
 
-let rec multiply = ()
+let rec multiply sez = 
+  match sez with
+  | x :: xs -> x * multiply xs 
+  | _ -> 1
+
+let rec multiply' = function
+  | [] -> 1
+  | x :: xs -> x * multiply' xs
 
 (*----------------------------------------------------------------------------*]
  Napišite funkcijo ekvivalentno python kodi:
@@ -54,7 +81,10 @@ let rec multiply = ()
  - : int list = [-1; 7; 0]
 [*----------------------------------------------------------------------------*)
 
-let rec sum_int_pairs = ()
+let rec sum_int_pairs sez =
+  match sez with
+  | [] -> []
+  | (a,b) :: xs -> a + b :: sum_int_pairs xs
 
 (*----------------------------------------------------------------------------*]
  Funkcija [get k list] poišče [k]-ti element v seznamu [list]. Številčenje
@@ -65,7 +95,16 @@ let rec sum_int_pairs = ()
  - : int = 1
 [*----------------------------------------------------------------------------*)
 
-let rec get = ()
+let rec get indeks sez =
+  match sez with
+  | [] -> failwith "Prevelik indeks"
+  | x :: xs -> if indeks <= 0 then x else get (indeks - 1) xs
+
+
+let rec get' indeks = function
+  | [] -> failwith "Prevelik indeks"
+  | x :: _ when indeks <= 0 -> x
+  | x :: xs -> get (indeks - 1) xs
 
 (*----------------------------------------------------------------------------*]
  Funkcija [double] podvoji pojavitve elementov v seznamu.
@@ -74,7 +113,10 @@ let rec get = ()
  - : int list = [1; 1; 2; 2; 3; 3]
 [*----------------------------------------------------------------------------*)
 
-let rec double = ()
+let rec double = function
+  | [] -> []
+  | x :: xs -> x :: (x :: double xs)
+  | x :: xs -> [x;x] :: double xs
 
 (*----------------------------------------------------------------------------*]
  Funkcija [insert x k list] na [k]-to mesto seznama [list] vrine element [x].
