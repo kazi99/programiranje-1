@@ -1,7 +1,7 @@
 import csv
 import json
 import os
-import requests
+import requests #knjiznica ki zajema spletne strani (je treba se nalozit to knjizico)
 import sys
 
 
