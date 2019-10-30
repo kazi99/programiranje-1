@@ -1,6 +1,8 @@
 import re
 import orodja
 
+#beautiful soup knjiznica namesto regulanih izrazov v html
+
 vzorec_bloka = re.compile(
     r'<div class="lister-item mode-advanced">.*?'
     r'</p>\s*</div>\s*</div>',
