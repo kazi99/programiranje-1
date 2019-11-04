@@ -4,7 +4,15 @@
 Namig: Definirajte pomožno funkcijo za obračanje seznamov.
 [*----------------------------------------------------------------------------*)
 
-let rec reverse = ()
+(* list.rev  <-- za izpit *)
+
+let rec reverse list = 
+  let rec reverse' list acc = 
+    match list with
+    | [] -> acc
+    | x :: xs -> reverse' xs (x :: acc)
+  in
+  reverse' list []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [repeat x n] vrne seznam [n] ponovitev vrednosti [x]. Za neprimerne
@@ -16,7 +24,8 @@ let rec reverse = ()
  - : string list = []
 [*----------------------------------------------------------------------------*)
 
-let rec repeat = ()
+let rec repeat x n =
+  if n <= 0 then [] else x :: repeat x (n - 1)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [range] sprejme število in vrne seznam vseh celih števil od 0 do
@@ -27,7 +36,14 @@ let rec repeat = ()
  - : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]
 [*----------------------------------------------------------------------------*)
 
-let rec range = ()
+let rec bad_range n =
+  if n < 0 then [] else bad_range(n - 1) @ [n]
+
+let rec range n = 
+  let rec range' n acc =
+    if n < 0 then acc else range' (n - 1) (n :: acc)
+  in
+  range' n []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [map f list] sprejme seznam [list] oblike [x0; x1; x2; ...] in
@@ -39,7 +55,10 @@ let rec range = ()
  - : int list = [2; 3; 4; 5; 6]
 [*----------------------------------------------------------------------------*)
 
-let rec map = ()
+let rec map f xs = 
+  match xs with
+  | [] -> []
+  | x :: xs' -> f x :: map f xs'
 
 (*----------------------------------------------------------------------------*]
  Funkcija [map_tlrec] je repno rekurzivna različica funkcije [map].
@@ -49,7 +68,25 @@ let rec map = ()
  - : int list = [2; 3; 4; 5; 6]
 [*----------------------------------------------------------------------------*)
 
-let rec map_tlrec = ()
+(* let rec map_tlrec f xs =
+  let rec map_tlrec' f xs acc = 
+    match xs with
+    | [] -> acc
+    | x :: xs -> 
+      let fx = f x in
+      let acc' = (fx :: acc') in 
+      map_tlrec' f xs acc'
+  in
+  map_tlrec' f xs  *)
+
+let rec map_tlrec f list =
+  let rec map_tlrec' f list acc = 
+    match list with
+    | [] -> acc
+    | x :: xs -> map_tlrec' f xs (f x :: acc)
+  in
+  reverse(map_tlrec' f list [])
+
 
 (*----------------------------------------------------------------------------*]
  Funkcija [mapi] je ekvivalentna python kodi:
@@ -67,7 +104,27 @@ let rec map_tlrec = ()
  - : int list = [0; 1; 2; 5; 6; 7]
 [*----------------------------------------------------------------------------*)
 
-let rec mapi = ()
+let rec mapi f list = 
+  let rec mapi' f list mapi_list index = 
+    match list with
+    | [] -> mapi_list
+    | x :: xs -> 
+      let mapi_list' = f x index :: mapi_list in
+      let index' = index + 1 in
+      mapi' f xs mapi_list' index'
+  in
+  reverse(mapi' f list [] 0)
+
+(* mapi (+) [0; 0; 0; 2; 2; 2];; *)
+
+(* let rec mapi f list = 
+  let rec mapi' f list mapi_list index =
+    match list with
+    | [] -> mapi_list
+    | x :: xs -> 
+    let 
+  in 
+  mapi' f list [] 0 *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [zip] sprejme dva seznama in vrne seznam parov istoležnih
