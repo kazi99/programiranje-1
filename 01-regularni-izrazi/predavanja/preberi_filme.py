@@ -12,7 +12,7 @@ vzorec = (
     r'\s+'
     r'<span class="lister-item-year text-muted unbold">\('
     r'(?P<leto>\d{4})'
-    r'\)'
+    r'\)' #r ignorira ubezne znake, da ni treba dvojni back-slash \\n
 )
 
 count = 0
