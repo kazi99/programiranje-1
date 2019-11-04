@@ -197,6 +197,10 @@ let rec loop condition f x =
   in
   loop' condition f x x 
 
+
+let loop_2 condition f x = 
+  if condition x then loop_2 condition f (f x) else x
+
 (*----------------------------------------------------------------------------*]
  Funkcija [fold_left_no_acc f list] sprejme seznam [x0; x1; ...; xn] in
  funkcijo dveh argumentov [f] in vrne vrednost izračuna
