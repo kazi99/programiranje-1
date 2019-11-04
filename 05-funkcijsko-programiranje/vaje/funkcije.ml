@@ -115,8 +115,6 @@ let rec mapi f list =
   in
   reverse(mapi' f list [] 0)
 
-(* mapi (+) [0; 0; 0; 2; 2; 2];; *)
-
 (* let rec mapi f list = 
   let rec mapi' f list mapi_list index =
     match list with
@@ -136,7 +134,22 @@ let rec mapi f list =
  Exception: Failure "Different lengths of input lists.".
 [*----------------------------------------------------------------------------*)
 
-let rec zip = ()
+(* let dolzina sez =
+    let rec dolzina' acc = function
+        | [] -> acc
+        | _ :: rep -> dolzina' (acc + 1) rep
+    in
+    dolzina' 0 sez *)
+
+let rec zip list_1 list_2 =
+  let rec zip' list_1 list_2 acc = 
+    match (list_1, list_2) with
+    | ([], []) -> acc
+    | (xs, []) -> failwith "Different lengths of input lists."
+    | ([], ys) -> failwith "Different lengths of input lists."
+    | (x :: xs, y :: ys) -> zip' xs ys ((x,y) :: acc)
+  in 
+  reverse(zip' list_1 list_2 [])
 
 (*----------------------------------------------------------------------------*]
  Funkcija [unzip] je inverz funkcije [zip], torej sprejme seznam parov
@@ -146,7 +159,13 @@ let rec zip = ()
  - : int list * string list = ([0; 1; 2], ["a"; "b"; "c"])
 [*----------------------------------------------------------------------------*)
 
-let rec unzip = ()
+let rec unzip list = 
+  let rec unzip' list acc_1 acc_2 = 
+    match list with
+    | [] -> (reverse(acc_1), reverse(acc_2))
+    | (a, b) :: xs -> unzip' xs (a :: acc_1) (b :: acc_2)
+  in
+  unzip' list [] []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [unzip_tlrec] je repno rekurzivna različica funkcije [unzip].
@@ -170,7 +189,13 @@ let rec unzip_tlrec = ()
  - : int = 12
 [*----------------------------------------------------------------------------*)
 
-let rec loop = ()
+let rec loop condition f x =
+  let rec loop' condition f x acc = 
+    match condition x with
+    | false -> acc
+    | true -> loop' condition f (f x) (f x)
+  in
+  loop' condition f x x 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [fold_left_no_acc f list] sprejme seznam [x0; x1; ...; xn] in
