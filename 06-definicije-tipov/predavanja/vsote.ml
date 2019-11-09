@@ -25,3 +25,14 @@ let fi = function
     | (Iota2 b, c) -> Iota2 (b, c)
 
 (* C^(A + B) -> C^A x C^B  *)
+
+type leto = Leto of int
+
+let koliko_let_je_minilo l = 
+  match l with
+  | Leto l -> 2019 - l
+
+let koliko_let_je_minilo  = function
+  | Leto l -> 2019 - l
+
+let koliko_let_je_minilo (Leto l) = 2019 - l 
