@@ -1,6 +1,15 @@
 
 (* ========== Vaja 1: Uvod v OCaml  ========== *)
 
+let reverse xs =
+  let rec aux xs acc = 
+    match xs with
+    | [] -> acc
+    | x :: xs' -> aux xs' (x :: acc)
+  in aux xs [] 
+
+let append xs x = reverse (x :: (reverse xs))
+
 (*----------------------------------------------------------------------------*]
  Funkcija [square] vrne kvadrat podanega celega števila.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,7 +137,15 @@ let rec double = function
  - : int list = [1; 0; 0; 0; 0; 0]
 [*----------------------------------------------------------------------------*)
 
-let rec insert = ()
+let rec insert el k xs =
+  if k <= 0 then el :: xs else 
+  let rec aux el k xs acc = 
+    match xs with
+      | [] -> append acc el
+      | x :: xs' -> 
+        if k = 0 then (append acc x) @ (el :: xs')
+        else aux el (k - 1) xs' (append acc x)
+  in aux el (k - 1) xs []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [divide k list] seznam razdeli na dva seznama. Prvi vsebuje prvih [k]
@@ -159,7 +176,17 @@ let rec divide k sez =
  - : int list = [3; 4; 5; 1; 2]
 [*----------------------------------------------------------------------------*)
 
-let rec rotate = ()
+let rec rotate k xs = 
+  if k <= 0 then xs else
+    match xs with
+    | [] -> []
+    | x :: xs' -> rotate (k - 1) (xs' @ [x])
+
+let rec rotate_tl k xs = 
+  if k <= 0 then xs else
+    match xs with
+    | [] -> []
+    | x :: xs' -> rotate_tl (k - 1) (append xs' x)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [remove x list] iz seznama izbriše vse pojavitve elementa [x].
@@ -168,7 +195,13 @@ let rec rotate = ()
  - : int list = [2; 3; 2; 3]
 [*----------------------------------------------------------------------------*)
 
-let rec remove = ()
+let rec remove y xs = 
+  let rec aux xs acc = 
+    match xs with
+    | [] -> acc
+    | x :: xs' -> 
+      if x = y then aux xs' acc else aux xs' (x :: acc)
+  in reverse (aux xs [])
 
 (*----------------------------------------------------------------------------*]
  Funkcija [is_palindrome] za dani seznam ugotovi ali predstavlja palindrom.
@@ -180,7 +213,17 @@ let rec remove = ()
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-let rec is_palindrome = ()
+let remove_last xs = 
+  match reverse xs with
+  | [] -> []
+  | _ :: xs -> reverse xs
+
+let rec is_palindrome xs =
+  match xs with 
+  | [] -> true
+  | [a] -> true
+  | x :: xs' -> 
+    if x = starting_element (reverse xs') then is_palindrome (remove_last xs') else false 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [max_on_components] sprejme dva seznama in vrne nov seznam, katerega
@@ -191,7 +234,15 @@ let rec is_palindrome = ()
  - : int list = [5; 4; 3; 3; 4]
 [*----------------------------------------------------------------------------*)
 
-let rec max_on_components = ()
+let rec max_on_components xs ys = 
+  let rec aux xs ys acc = 
+    match xs, ys with
+    | [], [] -> acc
+    | x :: _, [] -> acc
+    | [], y :: _ -> acc
+    | x :: xs', y :: ys' -> 
+      if x >= y then aux xs' ys' (x :: acc) else aux xs' ys' (y :: acc)
+  in reverse (aux xs ys [])
 
 (*----------------------------------------------------------------------------*]
  Funkcija [second_largest] vrne drugo največjo vrednost v seznamu. Pri tem se
@@ -203,4 +254,11 @@ let rec max_on_components = ()
  - : int = 10
 [*----------------------------------------------------------------------------*)
 
-let rec second_largest = ()
+let largest xs = 
+  let rec largest' xs big = 
+    match xs with
+    | [] -> big
+    | x :: xs' -> if x >= big then largest' xs' x else largest' xs' big
+  in largest' xs (starting_element xs)
+
+let second_largest xs = largest (remove (largest xs) xs)
