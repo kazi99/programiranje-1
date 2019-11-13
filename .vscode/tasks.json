@@ -27,13 +27,13 @@
                 "isDefault": true
             },
             "windows": {
-                "command": "ocaml -init \\\"${file}\\\""
+                "command": "rlwrap ocaml -init \\\"${file}\\\""
                 },
             "linux": {
-                "command": "ocaml -init \"${file}\""
+                "command": "rlwrap ocaml -init \"${file}\""
             },
             "osx": {
-                "command": "ocaml -init \"${file}\""
+                "command": "rlwrap ocaml -init \"${file}\""
             }
         }
     ]
