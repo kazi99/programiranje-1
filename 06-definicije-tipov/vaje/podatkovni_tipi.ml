@@ -53,7 +53,7 @@ let to_pound c =
 	match c with
 	| Crown (cr) -> Pound (cr *. 0.3)
 	| Yen (yn) -> Pound (yn *. 0.1)
-	| p ->  p  
+	| p ->  p
  
  (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Želimo uporabljati sezname, ki hranijo tako cela števila kot tudi logične
@@ -172,9 +172,9 @@ type specialisation = Historian | Teacher | Researcher
 [*----------------------------------------------------------------------------*)
 
 type status = 
-       | Newbie
-       | Student of magic * int    (*<--- argumenti*)
-       | Employed of magic * specialisation
+  | Newbie
+	| Student of magic * int    (*<--- argumenti*)
+	| Employed of magic * specialisation
 
 type wizard = {name : string; status : status}
 
@@ -195,7 +195,7 @@ type magic_counter = {fire: int; frost: int; arcane: int}
        | Fire -> {fire = counter.fire + 1; frost = counter.frost; arcane = counter.arcane}  in podobno za ostale*)
        
 let update counter = function
-       | Fire -> {counter with fire = counter.fire + 1}
+	| Fire -> {counter with fire = counter.fire + 1}
 
 (* let update {fire = fire2; frost = frost; arcane = arcane} = function
        | Fire -> {counter with fire = fire2}     <--- counter tuki ni definiran *)
@@ -222,13 +222,13 @@ let wizard = {name = "Matija"; status = Employed (Fire, Teacher)}
 (* let professor = wizard;; *)
 
 let count_magic lst = 
-       let folder counter {status} = 
-              match status with
-              | Newbie -> counter
-              | Student (magic, _) -> update counter magic
-              | Employed (magic, _) -> update counter magic
-       in
-			 lst.fold_left {fire = 0; frost = 0; arcane = 0} lst
+	let folder counter {status} = 
+		match status with
+		| Newbie -> counter
+		| Student (magic, _) -> update counter magic
+		| Employed (magic, _) -> update counter magic
+	in
+	lst.fold_left {fire = 0; frost = 0; arcane = 0} lst
 			 
 
 
