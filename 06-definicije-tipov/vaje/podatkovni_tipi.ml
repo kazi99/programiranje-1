@@ -172,7 +172,7 @@ type specialisation = Historian | Teacher | Researcher
 [*----------------------------------------------------------------------------*)
 
 type status = 
-  | Newbie
+  	| Newbie
 	| Student of magic * int    (*<--- argumenti*)
 	| Employed of magic * specialisation
 
@@ -210,6 +210,13 @@ let update counter = function
 	| Fire -> {counter with fire = counter.fire + 1}
 	| Frost -> {counter with frost= counter.frost + 1}
 	| Arcane -> {counter with arcane = counter.arcane + 1}
+
+let update_2 counter magic =
+	match magic with
+	| Fire -> {counter with fire = counter.fire + 1}
+	| Frost -> {counter with frost= counter.frost + 1}
+	| Arcane -> {counter with arcane = counter.arcane + 1}
+
 (*----------------------------------------------------------------------------*]
  Funkcija [count_magic] sprejme seznam čarodejev in vrne števec uporabnikov
  različnih vrst magij.
