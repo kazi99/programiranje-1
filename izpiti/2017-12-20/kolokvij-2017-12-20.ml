@@ -46,7 +46,9 @@
    tipom /'a drevo/ z enim konstruktorjem, ki sprejme:
    - vrednost (koren) tipa /'a/ in
    - seznam (gozd) dreves tipa /'a drevo/. *)
-type 'a drevo = DopolniMe
+
+type 'a drevo = 
+    
 
 (* 2.2) Definirajte naslednja rožna drevesa:
 
