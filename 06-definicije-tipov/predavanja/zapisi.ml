@@ -11,7 +11,6 @@ let ena_plus_i = {ena with im = 1.0}
 let ena_plus_i' = {{nic with re = 1.0} with im = 1.0} (* dela ampak cudno naprej brava *)
 
 let popravi_barvanje = function
-
     | _ -> None
 
 let rec fakulteta = function
