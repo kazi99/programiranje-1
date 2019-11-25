@@ -1,5 +1,5 @@
 (* ========== Vaja 2: Funkcijsko Programiranje  ========== *)
-
+(* open List *)
 (*----------------------------------------------------------------------------*]
 Namig: Definirajte pomožno funkcijo za obračanje seznamov.
 [*----------------------------------------------------------------------------*)
@@ -141,7 +141,7 @@ let rec mapi f list =
     in
     dolzina' 0 sez *)
 
-let rec zip list_1 list_2 =
+let rec zip list_1 list_2 = 
   let rec zip' list_1 list_2 acc = 
     match (list_1, list_2) with
     | ([], []) -> acc
@@ -174,7 +174,11 @@ let rec unzip list =
  - : int list * string list = ([0; 1; 2], ["a"; "b"; "c"])
 [*----------------------------------------------------------------------------*)
 
-let rec unzip_tlrec = ()
+let rec unzip_tlrec =
+  let rec unzip' acc_1 acc_2 = function
+    | [] -> (reverse acc_1, reverse acc_2)
+    | (a,b) :: xs -> unzip' (a :: acc_1) (b :: acc_2) xs
+  in unzip' [] []  
 
 (*----------------------------------------------------------------------------*]
  Funkcija [loop condition f x] naj se izvede kot python koda:
@@ -189,6 +193,8 @@ let rec unzip_tlrec = ()
  - : int = 12
 [*----------------------------------------------------------------------------*)
 
+(* let f = (+) 5 *)
+
 let rec loop condition f x =
   let rec loop' condition f x acc = 
     match condition x with
@@ -198,8 +204,8 @@ let rec loop condition f x =
   loop' condition f x x 
 
 
-let loop_2 condition f x = 
-  if condition x then loop_2 condition f (f x) else x
+(* let loop_2 condition f x = 
+  if condition x then loop_2 condition f (f x) else x *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [fold_left_no_acc f list] sprejme seznam [x0; x1; ...; xn] in
@@ -211,7 +217,12 @@ let loop_2 condition f x =
  - : string = "FICUS"
 [*----------------------------------------------------------------------------*)
 
-let rec fold_left_no_acc = ()
+let rec fold_left_no_acc f sez = 
+  match sez with
+  | [] -> failwith "Prekratek seznam"
+  | [_] -> failwith "Prekratek seznam"
+  | [x; y] -> f x y
+  | x :: y :: xs -> fold_left_no_acc f ((f x y) :: xs) 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [apply_sequence f x n] vrne seznam zaporednih uporab funkcije [f] na
@@ -225,7 +236,12 @@ let rec fold_left_no_acc = ()
  - : int list = []
 [*----------------------------------------------------------------------------*)
 
-let rec apply_sequence = ()
+let rec apply_sequence f x n =
+  let rec aux f x n acc = 
+    match n with
+    | 0 -> reverse (x :: acc)
+    | n -> aux f (f x) (n - 1) (x :: acc)
+  in aux f x n []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [filter f list] vrne seznam elementov [list], pri katerih funkcija [f]
@@ -235,7 +251,14 @@ let rec apply_sequence = ()
  - : int list = [4; 5]
 [*----------------------------------------------------------------------------*)
 
-let rec filter = ()
+let filter f sez =
+  let rec aux f sez acc = 
+    match sez with
+    | [] -> reverse acc
+    | x :: xs -> 
+      if f x then aux f xs (x :: acc)
+      else aux f xs acc
+  in aux f sez []
 
 (*----------------------------------------------------------------------------*]
  Funkcija [exists] sprejme seznam in funkcijo, ter vrne vrednost [true] čim
@@ -248,7 +271,14 @@ let rec filter = ()
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-let rec exists = ()
+let rec exists f sez = 
+  let rec aux f sez acc = 
+    match sez with
+    | [] -> acc
+    | x :: xs -> 
+      if f x then aux f xs (true || acc)
+      else aux f xs acc
+  in aux f sez false
 
 (*----------------------------------------------------------------------------*]
  Funkcija [first f default list] vrne prvi element seznama, za katerega
@@ -261,4 +291,9 @@ let rec exists = ()
  - : int = 0
 [*----------------------------------------------------------------------------*)
 
-let rec first = ()
+let rec first f default sez = 
+  match sez with
+  | [] -> default
+  | x :: xs -> 
+    if f x then x 
+    else first f default xs

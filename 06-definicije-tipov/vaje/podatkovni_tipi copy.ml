@@ -142,6 +142,10 @@ let rec intbool_separate ib_list =
  pregledno hranjenje podatkov.
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+
+(*  *)
+
+
 (*----------------------------------------------------------------------------*]
  Čarodeje razvrščamo glede na vrsto magije, ki se ji posvečajo. Definirajte tip
  [magic], ki loči med magijo ognja, magijo ledu in magijo arkane oz. fire,
@@ -152,7 +156,7 @@ let rec intbool_separate ib_list =
  [specialisation], ki loči med temi zaposlitvami.
 [*----------------------------------------------------------------------------*)
 
-type magic = Fire | Frost | Arcane
+type magic = Fire | Frost | Arcane (* | Nic *)
 
 type specialisation = Historian | Teacher | Researcher
 
@@ -171,13 +175,30 @@ type specialisation = Historian | Teacher | Researcher
  - : wizard = {name = "Matija"; status = Employed (Fire, Teacher)}
 [*----------------------------------------------------------------------------*)
 
-type status = 
-  	| Newbie
-	| Student of magic * int    (*<--- argumenti*)
+type status = 			(* to je samo tip *)
+	| Newbie
+	| Student of magic * int
 	| Employed of magic * specialisation
 
-type wizard = {name : string; status : status}
+type wizard = {name: string; status: status} (* to je zapisni tip*)
 
+(* let vrsta_statusa carovnik = carovnik.status *)
+
+
+(* napisi funkcijo, ki sprejme carovnika in pove njegovo vrsto carovnije *)
+
+(* ta funkcija ne bi delala ce ne bi blo se konstruktorja Nic v tipu magic, ker nima
+vsak status tudi podanege vrste magica *)
+
+(* let vrsta_magic carovnik = 
+	match carovnik with
+	| {name:_; status = Newbie} -> Nic
+	| {name:_; status = Student(carovnija,_)} -> carovnija
+	| {name:_; status = Employed(carovnija,_)} -> carovnija *)
+
+
+let izak = {name = "Izak"; status = Student(Frost, 2)}
+let professor = {name = "Matija"; status = Employed (Fire, Teacher)}
 (*----------------------------------------------------------------------------*]
  Želimo prešteti koliko uporabnikov posamezne od vrst magije imamo na akademiji.
  Definirajte zapisni tip [magic_counter], ki v posameznem polju hrani število
@@ -189,33 +210,29 @@ type wizard = {name : string; status : status}
  - : magic_counter = {fire = 1; frost = 1; arcane = 2}
 [*----------------------------------------------------------------------------*)
 
-type magic_counter = {fire: int; frost: int; arcane: int}
+type magic_counter = {fire: int; frost: int; arcane: int} (* zapisni tip je produkt imenovanih faktorjev *)
 
-(* let update counter = function
-       | Fire -> {fire = counter.fire + 1; frost = counter.frost; arcane = counter.arcane}  in podobno za ostale*)
-       
-let update counter = function
-	| Fire -> {counter with fire = counter.fire + 1}
-
-(* let update {fire = fire2; frost = frost; arcane = arcane} = function
-       | Fire -> {counter with fire = fire2}     <--- counter tuki ni definiran *)
-
-(* let update ({fire = fire2; frost = frost2; arcane = arcane2}) as counter = function
-       | Fire -> {counter with fire = fire2 + 1}
-       | Frost -> {counter with frost = frost2 + 1}
-       | Arcane -> {counter with arcane = arcane2 + 1} *)
-
-
-let update counter = function
-	| Fire -> {counter with fire = counter.fire + 1}
-	| Frost -> {counter with frost= counter.frost + 1}
-	| Arcane -> {counter with arcane = counter.arcane + 1}
-
-let update_2 counter magic =
+let update counter magic = 
 	match magic with
+	| Fire -> {fire = counter.fire + 1; frost = counter.frost; arcane = counter.arcane}
+	| Frost -> {fire = counter.fire; frost = counter.frost + 1; arcane = counter.arcane}
+	| Arcane -> {fire = counter.fire; frost = counter.frost; arcane = counter.arcane + 1}
+
+
+let update_krajsi counter = function
 	| Fire -> {counter with fire = counter.fire + 1}
-	| Frost -> {counter with frost= counter.frost + 1}
+	| Frost -> {counter with frost = counter.frost + 1}
 	| Arcane -> {counter with arcane = counter.arcane + 1}
+
+let update_zmesan counter magic = 
+	match magic with
+	| Fire -> {{counter with fire = counter.fire + 1} with frost = {counter with fire = counter.fire + 1}.frost + 100}
+	| Frost -> {counter with frost = counter.frost + 1}
+	| Arcane -> 
+		let counter' = {counter with arcane = counter.arcane + 1} in
+		{counter' with frost = counter'.frost + 500} (* ce hocem spreminjat vec faktorjev v produktu (npr. v magic_counter) *)
+
+let stevec_carovnije = {fire = 0; frost = 0; arcane = 0} 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [count_magic] sprejme seznam čarodejev in vrne števec uporabnikov
@@ -225,19 +242,32 @@ let update_2 counter magic =
  - : magic_counter = {fire = 3; frost = 0; arcane = 0}
 [*----------------------------------------------------------------------------*)
 
-let wizard = {name = "Matija"; status = Employed (Fire, Teacher)}
-(* let professor = wizard;; *)
+let count_magic sez = 
+	let prazen_counter = {fire = 0; frost = 0; arcane = 0} in
+	let rec aux sez counter = 
+		match sez with
+		| [] -> counter
+		| x :: xs -> 
+			match x.status with
+			| Newbie -> aux xs counter
+			| Student(carovnija, _ ) -> aux xs (update counter carovnija) 
+			| Employed(carovnija, _ ) -> aux xs (update counter carovnija)
+	in aux sez prazen_counter
 
-let count_magic lst = 
-	let folder counter {status} = 
-		match status with
-		| Newbie -> counter
-		| Student (magic, _) -> update counter magic
-		| Employed (magic, _) -> update counter magic
-	in
-	lst.fold_left {fire = 0; frost = 0; arcane = 0} lst
-			 
 
+
+let count_magic_2 wizard_list =
+  let rec count counter = function
+    | [] -> counter
+    | {name; status} :: wizards -> (
+        match status with
+        | Newbie -> count counter wizards
+        | Student (magic, _) -> count (update counter magic) wizards
+        | Employed (magic, _) -> count (update counter magic) wizards)
+  in count {fire = 0; frost = 0; arcane = 0} wizard_list
+
+
+(* count_magic [proffesor; proffesor; izak; izak; proffesor; izak; izak];;*)
 
 (*----------------------------------------------------------------------------*]
  Želimo poiskati primernega kandidata za delovni razpis. Študent lahko postane
@@ -253,4 +283,34 @@ let count_magic lst =
  - : string option = Some "Jaina"
 [*----------------------------------------------------------------------------*)
 
-let rec find_candidate = ()
+let rec find_candidate magic specialisation wizard_list = 
+	match wizard_list with
+	| [] -> None
+	| x :: xs ->
+		match x.status with
+		| Employed ( _ , _) -> find_candidate magic specialisation xs
+		| Newbie -> find_candidate magic specialisation xs
+		| Student (carovnija, l) -> 
+			if carovnija != magic then find_candidate magic specialisation xs
+			else
+				match specialisation with
+				| Historian -> if l >= 3 then Some x.name else find_candidate magic specialisation xs
+				| Researcher -> if l >= 4 then Some x.name else find_candidate magic specialisation xs
+				| Teacher -> if l >= 5 then Some x.name else find_candidate magic specialisation xs
+
+
+let find_candidate_2 magic specialisation wizard_list =
+  let year =
+    match specialisation with
+    | Historian -> 3
+    | Researcher -> 4
+    | Teacher -> 5
+  in
+  let rec search = function
+    | [] -> None
+    | {name; status} :: wizards ->
+        match status with
+        | Student (m, y) when m = magic && y >= year -> Some name
+        | _ -> search wizards
+  in
+  search wizard_list

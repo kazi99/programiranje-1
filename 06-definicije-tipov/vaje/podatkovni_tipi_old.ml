@@ -12,10 +12,14 @@ type race = Orc | Hobbit | Human
 *)
 
 
-type school = ()
+type school = Fire | Necrotic | Angelic
 
 
-type spell = ()
+type spell = 
+  | Firewall of school.Fire
+  | Blaze of school.Fire
+  | Resurrect of school.Necrotic
+  | 
 
 (* Veščine [skills], ki jih je čarodej osvojil, so seznam vseh urokov,
    ki jih lahko hitro izvede. Definiraj tip `skills'. *)
