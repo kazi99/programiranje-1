@@ -223,7 +223,17 @@ let succ bst =
   in
   match bst with
   | Empty -> None
-  | Node(l, x, d) -> minimal l
+  | Node(l, x, d) -> minimal d
+
+let pred bst =
+  let rec maximal = function
+    | Empty -> None
+    | Node(_, x, Empty) -> Some x
+    | Node(_, _, d) -> maximal d
+  in
+  match bst with
+  | Empty -> None
+  | Node(l, _, _) -> maximal l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
