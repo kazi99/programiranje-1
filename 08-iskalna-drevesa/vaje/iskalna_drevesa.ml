@@ -124,6 +124,42 @@ let rec is_sorted' = function
 
 let is_bst tree = is_sorted (list_of_tree tree)
 
+
+
+let is_between lb x up = 
+  match lb, up with
+  | (None, None) -> true
+  | (None, Some up') -> x < up'
+  | (Some lb', None) -> lb' < x
+  | (Some lb', Some up') -> (lb' < x) && (x < up') 
+
+
+let is_bst_eff =
+  let rec is_bst_aux cur_min cur_max = function
+    | Empty -> true
+    | Node(l, x, d) -> (is_between cur_min x cur_max)
+                    && (is_bst_aux cur_min (Some x) l)
+                    && (is_bst_aux (Some x) cur_max d)
+  in
+  is_bst_aux None None
+
+(* let is_bst_eff =
+  let rec is_bst_aux cur_min cur_max = function
+    | Empty -> true
+    | Node(l, x, d) -> cur_min < x && x < cur_max && (is_bst_aux cur_min x l) && (is_bst_aux x cur_max d)
+  in
+  is_bst_aux None None *)
+  
+
+
+(* let je_vmes tree x y = *)
+
+(* let is_bst tree = function
+  | Empty | Node(Empty, x, Empty) -> true
+  | Node(Empty, x, d) -> 
+  | Node(l, x, Empty) -> 
+  | Node(l, x, d) -> is_bst l && is_bst d &&  *)
+
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  V nadaljevanju predpostavljamo, da imajo dvojiška drevesa strukturo BST.
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
@@ -138,9 +174,24 @@ let is_bst tree = is_sorted (list_of_tree tree)
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-let insert x tree = 
-  match tree with
-  | 
+let rec member v = function
+  | Empty -> false
+  | Node(l, x, d) -> 
+    if v < x then member v l else  
+    if x < v then member v d else true
+
+
+let rec member' v = function
+  | Empty -> false
+  | Node(l, x, d) -> 
+    if x < v && x > v then true else
+    if v < x then member' v d else member' v l  
+
+let rec insert v = function
+  | Empty -> make_leaf v
+  | Node(l, x, d) when v < x -> Node(insert v l, x, d)
+  | Node(l, x, d) when v > x -> Node(l, x, insert v d)
+  | t -> t
 
 (*----------------------------------------------------------------------------*]
  Funkcija [member2] ne privzame, da je drevo bst.
@@ -149,6 +200,7 @@ let insert x tree =
  funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
 
+(* let member2 bst = list.mem (list_of_tree bst) *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [succ] vrne naslednjika korena danega drevesa, če obstaja. Za drevo
@@ -163,6 +215,15 @@ let insert x tree =
  - : int option = None
 [*----------------------------------------------------------------------------*)
 
+let succ bst = 
+  let rec minimal = function
+    | Empty -> None
+    | Node(Empty, x, _) -> Some x
+    | Node(l, _, _) -> minimal l
+  in
+  match bst with
+  | Empty -> None
+  | Node(l, x, d) -> minimal l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
