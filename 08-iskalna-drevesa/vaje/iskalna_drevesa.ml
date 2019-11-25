@@ -114,10 +114,6 @@ let rec list_of_tree = function
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-(* let rec is_bst = function
-  | Empty -> true
-  | Node() *)
-
 let rec is_sorted = function
   | [] | [_] -> true
   | x :: y :: xs -> x < y && is_sorted (y :: xs) (* tale je uresnici tr, ker najprej preveri x<y*)
@@ -142,6 +138,9 @@ let is_bst tree = is_sorted (list_of_tree tree)
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
+let insert x tree = 
+  match tree with
+  | 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [member2] ne privzame, da je drevo bst.
