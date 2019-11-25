@@ -24,6 +24,14 @@ let rec zlozi f acc = function
   | Nic -> acc
   | Naslednik n -> f (zlozi f acc n)
 
+let rec zlozi f acc n = 
+  match n with
+  | Nic -> acc
+  | Naslednik n -> f (zlozi f acc n)
+
+let naslednik n = Naslednik n
+
+
 let pretvori_v_int n = zlozi succ 0 n
 
 let sestej' m n = zlozi (fun vsota -> Naslednik vsota) m n
@@ -37,5 +45,4 @@ let rec sestej_tlrec n m =
   | Naslednik m -> aux (Naslednik acc) m 
   in
   aux m n
-  
-sestej_tlrec ena dva
+
