@@ -200,8 +200,6 @@ let rec insert v = function
  funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
 
-(* let member2 bst = list.mem (list_of_tree bst) *)
-
 let rec member_in_list mem = function
   | [] -> false
   | x :: xs' -> if x = mem then true else member_in_list mem xs'
