@@ -202,6 +202,12 @@ let rec insert v = function
 
 (* let member2 bst = list.mem (list_of_tree bst) *)
 
+let rec member_in_list mem = function
+  | [] -> false
+  | x :: xs' -> if x = mem then true else member_in_list mem xs'
+
+let member2 mem bst = member_in_list mem (list_of_tree bst)  
+
 (*----------------------------------------------------------------------------*]
  Funkcija [succ] vrne naslednjika korena danega drevesa, če obstaja. Za drevo
  oblike [bst = Node(l, x, r)] vrne najmanjši element drevesa [bst], ki je večji
