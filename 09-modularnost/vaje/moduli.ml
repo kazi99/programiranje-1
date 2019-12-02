@@ -53,9 +53,13 @@ module type NAT = sig
 
   val eq   : t -> t -> bool
   val zero : t
-  (* Dodajte manjkajoče! *)
-  (* val to_int : t -> int *)
-  (* val of_int : int -> t *)
+  val one : t
+
+  val to_int : t -> int
+  val of_int : int -> t
+  val plus : t -> t -> t
+  val mul: t -> t -> t
+  val minus: t -> t -> t
 end
 
 (*----------------------------------------------------------------------------*]
@@ -70,10 +74,16 @@ end
 module Nat_int : NAT = struct
 
   type t = int
-  let eq x y = failwith "later"
-  let zero = 0
-  (* Dodajte manjkajoče! *)
+  (* let eq' = (=) *)
+  let to_int x = x
+  let of_int x = x
 
+  let zero = 0
+  let one = 1
+  let eq x y = (x = y)
+  let plus = (+)
+  let mul = ( * )
+  let minus x y = max (x-y) 0
 end
 
 (*----------------------------------------------------------------------------*]
@@ -90,11 +100,53 @@ end
 
 module Nat_peano : NAT = struct
 
-  type t = unit (* To morate spremeniti! *)
-  let eq x y = failwith "later"
-  let zero = () (* To morate spremeniti! *)
+  type t = Zero | Succ of t (* To morate spremeniti! *)
+  let zero = Zero (* To morate spremeniti! *)
   (* Dodajte manjkajoče! *)
+  let one = Succ(zero)
+  let rec eq x y = match (x, y) with
+    | (Zero, Zero) -> true
+    (* | Zero, Succ(_) -> false
+    | Succ(_), Zero -> false *)
+    | (Succ(xs), Succ(ys)) -> eq xs ys
+    | _ -> false
 
+  let rec plus x y = match y with
+    | Zero -> x
+    | Succ(xs) -> Succ(plus xs y)
+
+  let minus x y = failwith "later" (* doma *)
+
+  let rec mul x y = match y with
+    | Zero -> Zero
+    | Succ(Zero) -> x
+    | Succ(ys) -> plus x (mul x ys)
+
+  (* let to_int x = 
+    let rec aux x acc = function
+      | Zero -> 0
+      | Succ(xs) -> aux xs (1 + acc)
+    in aux x 0 *)
+
+  let rec to_int x =
+    match x with
+    | Zero -> 0
+    | Succ(x') -> 1 + to_int x'
+
+  (* let rec of_int x = function
+    | 0 -> Zero
+    | 1 + xs -> Succ(xs)
+    | _ -> Zero *)
+
+  let rec of_int x =
+    match x with
+    | 0 -> Zero
+    | x' when x' > 0 -> Succ(of_int (x' - 1))
+    | _ -> failwith "Negativnih stevil ne sprejemam."
+
+  let rec to_int_helper acc x = match x with
+    | Zero -> acc
+    | Succ(x') -> to_int_helper (1 + acc) x'
 end
 
 (*----------------------------------------------------------------------------*]
@@ -118,7 +170,11 @@ end
  - : int = 4950
 [*----------------------------------------------------------------------------*)
 
-let sum_nat_100 (module Nat : NAT) = ()
+let sum_nat_100 (module Nat : NAT) = 
+  let rec sum acc current_nat =
+    if Nat.eq (current_nat) (Nat.of_int 100) then acc 
+    else sum (Nat.plus current_nat acc) (Nat.plus Nat.one current_nat)
+  in Nat.to_int (sum Nat.zero Nat.zero)
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Now we follow the fable told by John Reynolds in the introduction.
@@ -145,7 +201,8 @@ module Cartesian : COMPLEX = struct
 
   type t = {re : float; im : float}
 
-  let eq x y = failwith "later"
+  let eq x y = (x.re = y.re) && (y.im = x.im)
+    
   (* Dodajte manjkajoče! *)
 
 end
@@ -198,4 +255,4 @@ end
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
-let count (module Dict : DICT) list = ()
+(* let count (module Dict : DICT) list = () *)
