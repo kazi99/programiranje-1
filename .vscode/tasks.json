@@ -27,7 +27,7 @@
                 "isDefault": true
             },
             "windows": {
-                "command": "rlwrap ocaml -init \\\"${file}\\\""
+                "command": "ocaml -init \"${file}\""
                 },
             "linux": {
                 "command": "rlwrap ocaml -init \"${file}\""
