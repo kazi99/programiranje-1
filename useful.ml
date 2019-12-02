@@ -33,6 +33,12 @@ let rec fold_left_no_acc f sez =
   | x :: y :: xs -> fold_left_no_acc f ((f x y) :: xs) 
 
 (* |||||||||||||||||||||||||||||||||||||||||||||||||||||||| *)
+
+let rec member_in_list mem = function
+  | [] -> false
+  | x :: xs' -> if x = mem then true else member_in_list mem xs'
+
+(* |||||||||||||||||||||||||||||||||||||||||||||||||||||||| *)
 (* rabi reverse *)
 (* -------------------------------------------------------- *)
 

@@ -200,7 +200,11 @@ let rec insert v = function
  funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
 
-(* let member2 bst = list.mem (list_of_tree bst) *)
+let rec member_in_list mem = function
+  | [] -> false
+  | x :: xs' -> if x = mem then true else member_in_list mem xs'
+
+let member2 mem bst = member_in_list mem (list_of_tree bst)  
 
 (*----------------------------------------------------------------------------*]
  Funkcija [succ] vrne naslednjika korena danega drevesa, če obstaja. Za drevo
@@ -223,7 +227,17 @@ let succ bst =
   in
   match bst with
   | Empty -> None
-  | Node(l, x, d) -> minimal l
+  | Node(l, x, d) -> minimal d
+
+let pred bst =
+  let rec maximal = function
+    | Empty -> None
+    | Node(_, x, Empty) -> Some x
+    | Node(_, _, d) -> maximal d
+  in
+  match bst with
+  | Empty -> None
+  | Node(l, _, _) -> maximal l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 

@@ -91,6 +91,7 @@ let rec izpisi_vrednosti tree =
         print_newline ();
         izpisi_vrednosti_sez (t :: ts) izpisi_vrednosti
 
+(* druga verzija izpisi_vrednosti *)
 
 let rec izpisi_vrednosti' tree = 
     match tree with
@@ -108,18 +109,38 @@ let rec izpisi_vrednosti' tree =
                 izpisi_vr_sez xs
         in izpisi_vr_sez ts
 
+(* tretja verzija *)
+
+(* let rec izpisi_vrednosti_resitev (Drevo(root, forest)) = 
+    let rec iter f gozd =
+        match gozd with
+        | [] -> ()
+        | t :: ts -> 
+            f t;
+            iter f ts
+    in 
+    print_endline (string_of_int root);
+    iter (izpisi_vrednosti_resitev) forest *)
+
+let rec izpisi_vrednosti_resitev (Drevo (root, forest)) =
+  let rec iter f = function
+    | [] -> ()
+    | x :: xs -> f x; iter f xs
+  in
+  print_endline (string_of_int root); iter izpisi_vrednosti_resitev forest
+
 (* 2.5) Definirajte funkcijo, ki izračuna globino rožnega drevesa, t.j. dolžino
    najdaljše poti od korena do lista. *)
 
 let rec globina tree = 
-    let rec globina_v_sez sez =
+    let rec max_globina_v_sez sez =
         match sez with
         | [] -> 0
-        | t :: ts -> max (globina t) (globina_v_sez ts)
+        | t :: ts -> max (globina t) (max_globina_v_sez ts)
     in
     match tree with
     | Drevo ( _ , []) -> 1
-    | Drevo ( _ , x :: xs) -> 1 + max (globina x) (globina_v_sez xs)
+    | Drevo ( _ , x :: xs) -> 1 + max (globina x) (max_globina_v_sez xs)
 
 (* 2.6) Definirajte funkcijo, ki sestavi (poljubno) rožno drevo globine n.
    Vrednosti v korenih so poljubne. *)
@@ -169,8 +190,7 @@ let rec drevo_v_sez tree =
 
 let rec fold_left_no_acc f sez = 
   match sez with
-  | [] -> failwith "Prekratek seznam"
-  | [_] -> failwith "Prekratek seznam"
+  | [] | [ _ ]-> failwith "Prekratek seznam"
   | [x; y] -> f x y
   | x :: y :: xs -> fold_left_no_acc f ((f x y) :: xs)
 

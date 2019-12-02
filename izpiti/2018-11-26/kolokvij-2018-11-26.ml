@@ -16,7 +16,7 @@ let je_urejen sez =
         | [_] -> vr
         | a :: b :: xs -> 
             if a <= b then aux (b :: xs) (true && vr)
-            else aux (b :: xs) false 
+            else false 
     in aux sez true
 
 
