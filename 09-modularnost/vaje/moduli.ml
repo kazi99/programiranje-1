@@ -62,6 +62,11 @@ module type NAT = sig
   val minus: t -> t -> t
 end
 
+(* 
+Nat_int.to_int Nat_int.zero;;
+- : int = 0 
+*)
+
 (*----------------------------------------------------------------------------*]
  Napišite implementacijo modula [Nat_int], ki zgradi modul s signaturo [NAT],
  kjer kot osnovni tip uporablja OCamlov tip [int].
@@ -176,6 +181,12 @@ let sum_nat_100 (module Nat : NAT) =
     else sum (Nat.plus current_nat acc) (Nat.plus Nat.one current_nat)
   in Nat.to_int (sum Nat.zero Nat.zero)
 
+
+(* 
+sum_nat_100 (module Nat_int : NAT);;
+- : int = 4950 
+*)
+
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Now we follow the fable told by John Reynolds in the introduction.
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
@@ -188,8 +199,18 @@ let sum_nat_100 (module Nat : NAT) =
 
 module type COMPLEX = sig
   type t
+
   val eq : t -> t -> bool
-  (* Dodajte manjkajoče! *)
+
+  val zero : t
+  val one : t
+  val i : t
+
+  val minus : t -> t
+  val conjugate : t -> t
+  val plus : t -> t -> t
+  val mul : t -> t -> t
+
 end
 
 (*----------------------------------------------------------------------------*]
@@ -203,7 +224,14 @@ module Cartesian : COMPLEX = struct
 
   let eq x y = (x.re = y.re) && (y.im = x.im)
     
-  (* Dodajte manjkajoče! *)
+  let zero = {re = 0.; im = 0.}
+  let one = {re = 1.; im = 0.}
+  let i = {re = 0.; im = 1.}
+
+  let minus x = {re = -.x.re; im = -.x.im}
+  let conjugate x = {re = x.re; im = -.x.im}
+  let plus x y = {re = x.re +. y.re; im = x.im +. y.im}
+  let mul x y = {re = x.re *. y.re -. (x.im *. y.im); im = x.re *. y.im +. x.im *. y.re}
 
 end
 
@@ -224,8 +252,27 @@ module Polar : COMPLEX = struct
   let rad_of_deg deg = (deg /. 180.) *. pi
   let deg_of_rad rad = (rad /. pi) *. 180.
 
-  let eq x y = failwith "later"
-  (* Dodajte manjkajoče! *)
+  let rec mod2pi = function
+    | 0. -> true
+    | dif' -> 
+      if dif' > 0. then mod2pi (dif' -. 2. *. pi)
+      else false
+
+  let eq_arg x y =
+    let dif = abs_float (x -. y) in 
+    if dif = 0. then true
+    else mod2pi dif
+
+  let eq x y = (x.magn = y.magn) && (x.arg = y.arg || eq_arg x.arg y.arg)
+  
+  let zero = {magn = 0.; arg = 0.}
+  let one = {magn = 1.; arg = 0.}
+  let i = {magn = 1.; arg = pi /. 2.}
+
+  let minus x = {magn = x.magn; arg = x.arg +. pi}
+  let conjugate x = {magn = x.magn; arg = -.x.arg}
+  let mul x y = {magn = x.magn *. y.magn; arg = x.arg +. y.arg}
+  let plus x y = failwith "later"
 
 end
 
