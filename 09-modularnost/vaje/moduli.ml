@@ -253,6 +253,7 @@ module Polar : COMPLEX = struct
   let deg_of_rad rad = (rad /. pi) *. 180.
 
   let rec mod2pi = function
+  (* sprejme samo nenegativne floate *)
     | 0. -> true
     | dif' -> 
       if dif' > 0. then mod2pi (dif' -. 2. *. pi)
