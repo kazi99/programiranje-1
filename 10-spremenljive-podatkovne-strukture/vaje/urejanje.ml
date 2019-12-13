@@ -170,4 +170,4 @@ let index_min a lower upper =
  skupaj z [randlist].
 [*----------------------------------------------------------------------------*)
 
-let selection_sort_array 
+(* let selection_sort_array  *)
