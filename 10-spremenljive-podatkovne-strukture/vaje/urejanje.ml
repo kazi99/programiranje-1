@@ -9,6 +9,12 @@
  val l : int list = [0; 1; 0; 4; 0; 9; 1; 2; 5; 4]
 [*----------------------------------------------------------------------------*)
 
+let randlist len max =
+  let rec aux len max acc = 
+		match len with
+		| 0 -> acc
+		| n -> aux (n - 1) max ((Random.int max) :: acc)
+	in aux len max []
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Sedaj lahko s pomočjo [randlist] primerjamo našo urejevalno funkcijo (imenovana
@@ -17,7 +23,6 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  let test = (randlist 100 100) in (our_sort test = List.sort compare test);;
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
-
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
  Urejanje z Vstavljanjem
@@ -35,13 +40,49 @@
  - : int list = [7]
 [*----------------------------------------------------------------------------*)
 
+(* let insert_in_sorted y xs = 
+	let rec aux manjsi rest =
+		match rest with
+		| [] -> manjsi @ [y]
+		| x :: xs' -> when x > y -> aux (manjsi @ [x]) xs'
+		| x :: xs' -> aux aux aux (manjsi	@ [y]) xs'
+	in
+	aux [] xs *)
+			
+let insert_in_sorted y xs =
+	let rec aux manjsi rest =
+		match rest with
+		| [] -> manjsi @ [y]
+		| x :: xs' -> 
+			if x > y then manjsi @ [y] @ (x :: xs')
+ 			else aux (manjsi @ [x]) xs'
+	in 
+	aux [] xs  
+
+let insert_in_sorted_fast y xs =
+	let rec aux manjsi rest =
+		match rest with
+		| [] -> List.rev (y :: manjsi)
+		| x :: xs' ->
+			if x > y then List.rev_append xs' (y :: manjsi) (* lahko tudi rest namesto y :: manjsi *)
+			else aux (x :: manjsi) xs'
+	in
+	aux [] xs
 
 (*----------------------------------------------------------------------------*]
  Prazen seznam je že urejen. Funkcija [insert_sort] uredi seznam tako da
  zaporedoma vstavlja vse elemente seznama v prazen seznam.
 [*----------------------------------------------------------------------------*)
 
+let insert_sort xs =
+	let rec aux acc xs = 
+		match xs with
+		| [] -> acc
+		| x :: xs' -> aux (insert_in_sorted x acc) xs'
+	in
+	aux [] xs 
 
+let insert_sort' list = List.fold_left (fun acc x -> insert_in_sorted x acc) [] list
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
  Urejanje z Izbiranjem
@@ -101,6 +142,10 @@
  - : int array = [|0; 4; 2; 3; 1|]
 [*----------------------------------------------------------------------------*)
 
+let swap a i j =
+	let z = a.(i) in
+	a.(i) <- a.(j);
+	a.(j) <- z
 
 (*----------------------------------------------------------------------------*]
  Funkcija [index_min a lower upper] poišče indeks najmanjšega elementa tabele
@@ -109,6 +154,14 @@
  index_min [|0; 2; 9; 3; 6|] 2 4 = 4
 [*----------------------------------------------------------------------------*)
 
+let index_min a lower upper =
+	let cur_ind = ref lower in
+	for i = (lower + 1) to upper
+	do
+		if a.(i) < a.(!cur_ind) then 
+			cur_ind := i
+	done;
+	!cur_ind
 
 (*----------------------------------------------------------------------------*]
  Funkcija [selection_sort_array] implementira urejanje z izbiranjem na mestu. 
@@ -117,3 +170,4 @@
  skupaj z [randlist].
 [*----------------------------------------------------------------------------*)
 
+let selection_sort_array 
