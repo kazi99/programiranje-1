@@ -2,6 +2,35 @@
  DODATNE VAJE 
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+type 'a tree =
+  | Empty
+  | Node of 'a tree * 'a * 'a tree
+
+let make_leaf x = Node(Empty, x, Empty)
+
+let rec insert v = function
+  | Empty -> make_leaf v
+  | Node(l, x, d) when v < x -> Node(insert v l, x, d)
+  | Node(l, x, d) when v > x -> Node(l, x, insert v d)
+  | t -> t
+
+let is_between lb x up = 
+  match lb, up with
+  | (None, None) -> true
+  | (None, Some up') -> x < up'
+  | (Some lb', None) -> lb' < x
+  | (Some lb', Some up') -> (lb' < x) && (x < up') 
+
+
+let is_bst =
+  let rec is_bst_aux cur_min cur_max = function
+    | Empty -> true
+    | Node(l, x, d) -> (is_between cur_min x cur_max)
+                    && (is_bst_aux cur_min (Some x) l)
+                    && (is_bst_aux (Some x) cur_max d)
+  in
+  is_bst_aux None None
+
 (*----------------------------------------------------------------------------*]
  Funkcija [bst_of_list] iz seznama naredi dvojiško iskalno drevo.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9,6 +38,12 @@
  - : bool = true
 [*----------------------------------------------------------------------------*)
 
+let bst_of_list = 
+    let rec aux acc = function
+    | [] -> acc
+    | x :: xs -> aux (insert x acc) xs
+    in
+    aux Empty
 
 (*----------------------------------------------------------------------------*]
  Funkcija [tree_sort] uredi seznam s pomočjo pretvorbe v bst in nato nazaj
