@@ -402,12 +402,12 @@ let rec dict_insert key value dict =
   | Empty -> make_leaf (key, value)
   | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert key value d)  
   | Node(l, (k, v), d) when key < k -> Node (dict_insert key value l, (k, v), d)
-  | Node(l, (k, v), d) -> Node (l, (k, value), d) 
+  | Node(l, (k, v), d) -> Node (l, (k, value), d)    (* to se izvede samo ko je k = key *)
   
 
 let rec dict_insert' key value dict =
   match dict with
   | Empty -> make_leaf (key, value)
-  | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert key value d)  
-  | Node(l, (k, v), d) when key < k -> Node (dict_insert key value l, (k, v), d)
+  | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert' key value d)  
+  | Node(l, (k, v), d) when key < k -> Node (dict_insert' key value l, (k, v), d)
   | Node(l, (k, v), d) -> Node (l, (k, value), d) 
