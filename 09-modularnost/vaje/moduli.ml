@@ -175,7 +175,7 @@ end
  - : int = 4950
 [*----------------------------------------------------------------------------*)
 
-let sum_nat_100 (module Nat : NAT) = 
+let sum_nat_100 (module Nat : NAT) =  (* Argument te funkcije je modul "Nat" *)
   let rec sum acc current_nat =
     if Nat.eq (current_nat) (Nat.of_int 100) then acc 
     else sum (Nat.plus current_nat acc) (Nat.plus Nat.one current_nat)
@@ -291,6 +291,56 @@ end
  [print] (print naj ponovno deluje zgolj na [(string, int) t].
 [*----------------------------------------------------------------------------*)
 
+module type DICT = sig
+  type ('key, 'value) t
+
+  val empty : ('key, 'value) t
+
+  val get : 'key -> ('key, 'value) t -> 'value option
+  val insert : 'key -> 'value -> ('key, 'value) t -> ('key, 'value) t
+  val print : (string, int) t -> unit
+end
+
+
+module Tree_dict : DICT = struct
+  type ('key , 'value) t =
+    | D_Empty
+    | D_Node of ('key, 'value) t * ('key * 'value) * ('key, 'value) t
+
+    (* 
+      tu ne dela:                   ^^^^^^^^^^^^
+      D_Node of ('key, 'value) t * ('key, 'value) * ('key, 'value) t
+     *)
+
+  let empty = D_Empty
+
+  let rec get key d =
+  match d with
+  | D_Empty -> None
+  | D_Node (l, (k, v), d) -> 
+    if k = key then Some v else
+    if k > key then get key l
+    else get key d
+
+  let make_leaf x = D_Node(D_Empty, x, D_Empty)
+
+  let rec insert key value dict =
+    match dict with
+    | D_Empty -> make_leaf (key, value)
+    | D_Node(l, (k, v), d) when key > k -> D_Node (l, (k, v), insert key value d)  
+    | D_Node(l, (k, v), d) when key < k -> D_Node (insert key value l, (k, v), d)
+    | D_Node(l, (k, v), d) -> D_Node (l, (k, value), d) 
+
+  let rec print = function
+  | D_Empty -> ()
+  | D_Node (l, (key, value), d) ->
+    print l;
+    print_string (key ^ " : ");
+    print_int value;
+    print_newline ();
+    print d
+
+end
 
 (*----------------------------------------------------------------------------*]
  Funkcija [count (module Dict) list] prešteje in izpiše pojavitve posameznih
@@ -303,4 +353,17 @@ end
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
-(* let count (module Dict : DICT) list = () *)
+let count (module Dict : DICT) list = 
+  let rec aux list counter = 
+    match list with
+    | [] -> counter
+    | x :: xs -> (
+      let cur_val = Dict.get x counter in
+      let change_value = function
+      | None -> Dict.insert x 1 counter
+      | Some v -> Dict.insert x (v + 1) counter
+      in
+      aux xs (change_value cur_val)
+    )
+  in
+  Dict.print (aux list Dict.empty)
