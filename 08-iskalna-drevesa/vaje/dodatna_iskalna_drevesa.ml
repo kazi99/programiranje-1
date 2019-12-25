@@ -55,6 +55,11 @@ let bst_of_list =
  - : string list = ["a"; "b"; "c"; "d"; "e"; "f"]
 [*----------------------------------------------------------------------------*)
 
+let rec list_of_tree = function
+  | Empty -> []
+  | Node(l, x, d) -> (list_of_tree l) @ (x :: (list_of_tree d))
+
+let tree_sort l = list_of_tree (bst_of_list l) 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [follow directions tree] tipa [direction list -> 'a tree -> 'a option]
@@ -68,6 +73,33 @@ let bst_of_list =
  - : int option = None
 [*----------------------------------------------------------------------------*)
 
+let test_tree = Node(Node(make_leaf 0, 2, Empty) , 5, Node(make_leaf 6, 7, make_leaf 11))
+
+(*        5
+         / \
+        2   7
+       /   / \
+      0   6   11       *)
+
+type directions = Left | Right
+
+let follow directions tree = 
+  let rec follow' (directions: directions list) (tree: 'a tree option) = 
+    match directions with
+    | [] -> (match tree with
+      | None | Some Empty -> None
+      | Some Node(_, x, _) -> Some x
+    )
+    | Left :: xs -> (match tree with
+      | None | Some Empty -> None
+      | Some Node(l, _, _) -> follow' xs (Some l)
+    )
+    | Right :: xs -> (match tree with
+      | None | Some Empty -> None
+      | Some Node(_, _, r) -> follow' xs (Some r)
+    )
+  in
+  follow' directions (Some tree)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [prune directions tree] poišče vozlišče v drevesu glede na navodila,
@@ -81,6 +113,18 @@ let bst_of_list =
  Some (Node (Node (Node (Empty, 0, Empty), 2, Empty), 5, Empty))
 [*----------------------------------------------------------------------------*)
 
+let rec delete_sub_tree x tree = 
+  match tree with
+  | Empty -> tree
+  | Node(l, y, d) when x < y -> Node(delete_sub_tree x l, y, d) 
+  | Node(l, y, d) when x > y -> Node(l, y, delete_sub_tree x d) 
+  | _ -> Empty (* to je se edina preostala moznost ko sta x=y in takrat poddrevo zbrisemo *)
+
+let prune directions tree = 
+  let to_clear = follow directions tree in
+  match to_clear with
+  | None -> tree
+  | Some x -> delete_sub_tree x tree
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  PHANTOM TREES
@@ -93,6 +137,11 @@ let bst_of_list =
  predpostavljamo, da imajo drevesa obliko BST.
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+type state = Exists | Ghost
+
+type 'a phantom_tree = 
+  | P_Empty
+  | P_Node of 'a phantom_tree * 'a  * 'a phantom_tree * state
 
 (*----------------------------------------------------------------------------*]
  Funkcija [phantomize] tipa ['a tree -> 'a phantom_tree] navadnemu drevesu
@@ -112,8 +161,34 @@ let bst_of_list =
  - : int phantom_tree =
  P_Node (P_Empty, 2,
  P_Node (P_Node (P_Empty, 3, P_Empty, Ghost), 4, P_Empty, Exists), Exists)
+
+Zgleda da bst_of_list dela mal drugace pri meni kot pri njih
+
+P_Node (
+    P_Empty, 
+    2,
+    P_Node (
+        P_Node (P_Empty, 3, P_Empty, Ghost), 
+        4, 
+        P_Empty, Exists), Exists)
+
+P_Node (
+    P_Node (P_Empty, 2, P_Empty, Exists), 
+    3, 
+    P_Node (P_Empty, 4, P_Empty, Exists), Ghost)
+
 [*----------------------------------------------------------------------------*)
 
+let rec phantomize = function
+  | Empty -> P_Empty
+  | Node (d, x, r) -> P_Node (phantomize d, x, phantomize r, Exists) 
+
+let rec kill x ptree =
+  match ptree with
+  | P_Empty -> P_Empty
+  | P_Node (l, y, r, _) when y = x -> P_Node (l, y, r, Ghost)
+  | P_Node (l, y, r, s) when x > y -> P_Node (l, y, kill x r, s)
+  | P_Node (l, y, r, s) -> P_Node (kill x l, y, r, s)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [unphantomize] tipa ['a phantom_tree -> 'a tree] fantomskemu drevesu 
@@ -125,3 +200,10 @@ let bst_of_list =
  # test_tree |> phantomize |> kill 7 |> kill 0 |> kill 5 |> unphantomize;;
  - : int tree = Node (Node (Node (Empty, 2, Empty), 6, Empty), 11, Empty)
 [*----------------------------------------------------------------------------*)
+
+let rec list_of_ptree = function
+  | P_Empty -> []
+  | P_Node (l, x, r, s) when s = Exists -> (list_of_ptree l) @ (x :: list_of_ptree r)
+  | P_Node (l, x, r, s) -> (list_of_ptree l) @ (list_of_ptree r)
+
+let unphantomize ptree = ptree |> list_of_ptree |> bst_of_list
