@@ -90,7 +90,7 @@ let rec list_of_tree = function
   | Empty -> []
   | Node(l, x, d) -> (list_of_tree l) @ (x :: (list_of_tree d))
 
-(* Časovna zahtevnost je 2^n (?) vrjetno O(nLog(n)) (?) *)
+(* Časovna zahtevnost je O(n) *)
 
 (* 
   T(n) = T(n/2) + T_@(n/2, n/2) + O(1) + T(n/2) 
@@ -98,7 +98,7 @@ let rec list_of_tree = function
        = T(n/2) + O(n/2) + O(1) + T(n/2)
        = 2T(n/2) + O(n/2) + O(1)
        ...
-       = 2^(Log(n))O(1) + 
+       = 2^(Log(n))O(1) + ???
 
 *)
 
@@ -283,8 +283,8 @@ let rec delete x bst =
 let rec delete_w_succ x bst = 
   if not (member x bst) then bst else
   match bst with
-  | Node(l, y, d) when x < y -> Node(delete x l, y, d) 
-  | Node(l, y, d) when x > y -> Node(l, y, delete x d) 
+  | Node(l, y, d) when x < y -> Node(delete_w_succ x l, y, d) 
+  | Node(l, y, d) when x > y -> Node(l, y, delete_w_succ x d) 
   | Node(l, y, d) as dummy_tree when x = y -> (
     match succ dummy_tree with
     | None -> Empty
@@ -396,8 +396,8 @@ let show_key (a, b) = a
 let show_key' = fun (a, b) -> a
 
 let rec dict_insert key value dict =
-  let tree_of_keys = map_tree show_key dict in
-  if not (member key tree_of_keys) then insert (key, value) dict else (* ti dve vrstici sta useless*)
+  let tree_of_keys = map_tree show_key dict in   (* ti dve vrstici sta useless*)
+  if not (member key tree_of_keys) then insert (key, value) dict else 
   match dict with
   | Empty -> make_leaf (key, value)
   | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert key value d)  
