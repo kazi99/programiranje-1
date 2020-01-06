@@ -45,13 +45,6 @@ let rec mirror tree =
 
 (* ce mirror dvakrat uporabimo ni tail recursive *)
 
-(* let mirror_tr tree =
-  let rec aux tree acc = 
-    match tree with
-    | Empty -> acc
-    |  *)
-
-
 (*----------------------------------------------------------------------------*]
  Funkcija [height] vrne višino oz. globino drevesa, funkcija [size] pa število
  vseh vozlišč drevesa.
@@ -93,15 +86,21 @@ let rec map_tree f tree =
  - : int list = [0; 2; 5; 6; 7; 11]
 [*----------------------------------------------------------------------------*)
 
-(* let list_of_tree tree
-  let rec aux tree acc = 
-    match tree with
-    | Empty -> acc
-    |  *)
-
 let rec list_of_tree = function
   | Empty -> []
   | Node(l, x, d) -> (list_of_tree l) @ (x :: (list_of_tree d))
+
+(* Časovna zahtevnost je O(n) *)
+
+(* 
+  T(n) = T(n/2) + T_@(n/2, n/2) + O(1) + T(n/2) 
+  ( Vemo T_@(n/2, n/2) = O(n/2) = O(n))
+       = T(n/2) + O(n/2) + O(1) + T(n/2)
+       = 2T(n/2) + O(n/2) + O(1)
+       ...
+       = 2^(Log(n))O(1) + ???
+
+*)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [is_bst] preveri ali je drevo binarno iskalno drevo (Binary Search 
@@ -116,7 +115,7 @@ let rec list_of_tree = function
 
 let rec is_sorted = function
   | [] | [_] -> true
-  | x :: y :: xs -> x < y && is_sorted (y :: xs) (* tale je uresnici tr, ker najprej preveri x<y*)
+  | x :: y :: xs -> x < y && is_sorted (y :: xs) (* tale je uresnici tail recursive, ker najprej preveri x<y *)
 
 let rec is_sorted' = function
   | x :: y :: xs -> if x < y then is_sorted'(y :: xs) else false
@@ -200,14 +199,18 @@ let rec insert v = function
  funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
 
+let rec member2 mem = function
+  | Empty -> false
+  | Node(l, x, d) -> x = mem || member2 mem l || member2 mem d
+
 let rec member_in_list mem = function
   | [] -> false
   | x :: xs' -> if x = mem then true else member_in_list mem xs'
 
-let member2 mem bst = member_in_list mem (list_of_tree bst)  
+let member3 mem bst = member_in_list mem (list_of_tree bst)  
 
 (*----------------------------------------------------------------------------*]
- Funkcija [succ] vrne naslednjika korena danega drevesa, če obstaja. Za drevo
+ Funkcija [succ] vrne naslednika korena danega drevesa, če obstaja. Za drevo
  oblike [bst = Node(l, x, r)] vrne najmanjši element drevesa [bst], ki je večji
  od korena [x].
  Funkcija [pred] simetrično vrne največji element drevesa, ki je manjši od
@@ -252,6 +255,54 @@ let pred bst =
  Node (Node (Empty, 6, Empty), 11, Empty))
 [*----------------------------------------------------------------------------*)
 
+(* ta funkcija brise samo liste na koncu, sicer ne dela *)
+let rec delete_leaf x bst = 
+  match x with
+  | None -> Empty
+  | Some x -> (
+    match bst with
+    | Node(l, y, d) when x < y -> Node(delete_leaf (Some x) l, y, d)
+    | Node(l, y, d) when x > y -> Node(l, y, delete_leaf (Some x) d)
+    | Node(l, y, d) -> Empty
+    | _ -> failwith "not happening" 
+  )
+
+let rec delete x bst = 
+  if not (member x bst) then bst else
+  match bst with
+  | Node(l, y, d) when x < y -> Node(delete x l, y, d) 
+  | Node(l, y, d) when x > y -> Node(l, y, delete x d) 
+  | Node(l, y, d) when x = y -> (
+    let dummy_tree = Node(l, y, d) in
+    match succ dummy_tree with
+    | None -> Empty
+    | Some s -> Node(l, s, delete_leaf (Some s) d)
+  )
+  | _ -> failwith ""
+
+let rec delete_w_succ x bst = 
+  if not (member x bst) then bst else
+  match bst with
+  | Node(l, y, d) when x < y -> Node(delete_w_succ x l, y, d) 
+  | Node(l, y, d) when x > y -> Node(l, y, delete_w_succ x d) 
+  | Node(l, y, d) as dummy_tree when x = y -> (
+    match succ dummy_tree with
+    | None -> Empty
+    | Some s -> Node(l, s, delete_leaf (Some s) d)
+  )
+  | _ -> failwith ""
+
+let rec delete_w_pred x bst = 
+  if not (member x bst) then bst else
+  match bst with
+  | Node(l, y, d) when x < y -> Node(delete x l, y, d) 
+  | Node(l, y, d) when x > y -> Node(l, y, delete x d) 
+  | Node(l, y, d) as dummy_tree when x = y -> (
+    match pred dummy_tree with
+    | None -> Empty
+    | Some p -> Node(delete_leaf (Some p) l, y, d)
+  )
+  | _ -> failwith ""
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  SLOVARJI
@@ -264,6 +315,7 @@ let pred bst =
  vrednosti, ga parametriziramo kot [('key, 'value) dict].
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+type ('key, 'value) dict = ('key * 'value) tree
 
 (*----------------------------------------------------------------------------*]
  Napišite testni primer [test_dict]:
@@ -274,6 +326,8 @@ let pred bst =
      "c":-2
 [*----------------------------------------------------------------------------*)
 
+let test_dict : (string, int) dict = 
+  Node (make_leaf ("a", 0), ("b", 1), Node (make_leaf ("c", -2), ("d", 2), Empty))
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_get key dict] v slovarju poišče vrednost z ključem [key]. Ker
@@ -285,7 +339,14 @@ let pred bst =
  - : int option = Some (-2)
 [*----------------------------------------------------------------------------*)
 
-      
+let rec dict_get key d =
+  match d with
+  | Empty -> None
+  | Node (l, (k, v), d) -> 
+    if k = key then Some v else
+    if k > key then dict_get key l
+    else dict_get key d
+
 (*----------------------------------------------------------------------------*]
  Funkcija [print_dict] sprejme slovar s ključi tipa [string] in vrednostmi tipa
  [int] in v pravilnem vrstnem redu izpiše vrstice "ključ : vrednost" za vsa
@@ -302,6 +363,15 @@ let pred bst =
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
+(* zelo podobno kot funkcija list_of_tree *)
+let rec print_dict = function
+  | Empty -> ()
+  | Node (l, (key, value), d) ->
+    print_dict l;
+    print_string (key ^ " : ");
+    print_int value;
+    print_newline ();
+    print_dict d
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_insert key value dict] v slovar [dict] pod ključ [key] vstavi
@@ -322,3 +392,22 @@ let pred bst =
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
+let show_key (a, b) = a
+let show_key' = fun (a, b) -> a
+
+let rec dict_insert key value dict =
+  let tree_of_keys = map_tree show_key dict in   (* ti dve vrstici sta useless*)
+  if not (member key tree_of_keys) then insert (key, value) dict else 
+  match dict with
+  | Empty -> make_leaf (key, value)
+  | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert key value d)  
+  | Node(l, (k, v), d) when key < k -> Node (dict_insert key value l, (k, v), d)
+  | Node(l, (k, v), d) -> Node (l, (k, value), d)    (* to se izvede samo ko je k = key *)
+  
+
+let rec dict_insert' key value dict =
+  match dict with
+  | Empty -> make_leaf (key, value)
+  | Node(l, (k, v), d) when key > k -> Node (l, (k, v), dict_insert' key value d)  
+  | Node(l, (k, v), d) when key < k -> Node (dict_insert' key value l, (k, v), d)
+  | Node(l, (k, v), d) -> Node (l, (k, value), d) 
