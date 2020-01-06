@@ -47,4 +47,12 @@ soba = [[0, 1, 0, 0, 2],
 
 
 def pobeg(soba, pozicija, koraki):
-    return None
+    x = pozicija[0]
+    y = pozicija[1]
+    width = len(soba[0])
+    height = len(sobe)
+
+    def  
+
+
+    return pobeg(soba, gor, koraki - 1) or pobeg(soba, dol, koraki - 1) or pobeg(soba, levo, koraki - 1) or pobeg(soba, desno, koraki - 1)
