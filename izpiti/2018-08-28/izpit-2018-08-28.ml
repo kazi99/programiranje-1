@@ -63,6 +63,11 @@ type 'a veriga =
 let test_f x = if x >= 0 && x < 10 then true else false
 let test = Filter (test_f, [], Ostalo [])
 
+let f_0 = fun x -> x < 0
+let f_10 = fun x -> x < 10
+
+let test' = Filter (f_0, [], Filter (f_10, [], Ostalo []))
+
 (* b) *)
 
 let rec vstavi t veriga = 
@@ -70,27 +75,57 @@ let rec vstavi t veriga =
 	| Ostalo xs -> Ostalo (t :: xs)
 	| Filter (f, xs, veriga') -> if f t then Filter (f, t :: xs, veriga') else Filter (f, xs, vstavi t veriga')
 
+let vst_test = vstavi (-5) (vstavi (7) (vstavi 100 (vstavi (-7) (vstavi 2 test'))))
+
 (* c) *)
 
-(* let rec poisci t veriga =
+let rec poisci t veriga =
 	match veriga with
-	| Ostalo xs -> List.exists t xs
-	| Filter (f, xs, veriga') -> if f t then List.exists t xs else poisci t veriga' *)
+	| Ostalo xs -> List.mem t xs
+	| Filter (f, xs, veriga') -> if f t then List.mem t xs else poisci t veriga'
 
 (* d) *)
 
-(* let izprazni_filtre veriga = 
-	let rec aux veriga acc_sez =
-		match veriga with
-		| Ostalo xs -> (Ostalo [], xs @ acc_sez) 
-		| Filter (f, xs, veriga') -> (Filter(f, [], aux veriga' (xs @ acc_sez)), xs @ acc_sez)
-	in aux veriga [] *)
+let pi_1 (x, y) = x
+let pi_2 (x, y) = y
 
-let izprazni_filtre veriga = 
-	let rec aux acc = function
-	| Ostalo xs -> 
+let izprazni (veriga : 'a veriga) =
+	let rec aux veriga = match veriga with
+    | Ostalo xs -> Ostalo []
+    | Filter(f, xs, veriga') -> Filter(f, [], aux veriga')
+  in aux veriga 
 
-let rec izprazni_filtre_brez_sez veriga =
-	match veriga with
-	| Ostalo xs -> Ostalo []
-	| Filter (f, xs, v) -> Filter (f, [], izprazni_filtre_brez_sez v)
+let naberi (veriga : 'a veriga) =
+  let rec aux veriga acc = match veriga with
+    | Ostalo xs -> xs @ acc
+    | Filter(_, xs, veriga') -> xs @ (aux veriga' acc)
+  in aux veriga []
+
+let izprazni_filtre (veriga : 'a veriga) = izprazni veriga, naberi veriga
+
+let izprazni_filtre_better veriga =
+  let rec aux veriga acc = match veriga with
+    | Ostalo xs -> Ostalo [], xs @ acc
+    | Filter(f, xs, veriga') -> (Filter(f, [], pi_1 (aux veriga' [])), xs @ (pi_2 (aux veriga' acc)))
+  in aux veriga []
+
+(* e) *)
+
+let dodaj_filter f veriga = 
+  let elementi = naberi veriga in
+  let izpr_veriga = izprazni veriga in
+  let nova_veriga = Filter(f, [], izpr_veriga) in
+  let rec nazaj_vstavi sez veriga = match sez with
+    | [] -> veriga
+    | x :: xs -> nazaj_vstavi xs (vstavi x veriga)
+  in
+  nazaj_vstavi elementi nova_veriga
+
+let dodaj_filter_short f veriga =
+  let rec aux sez veriga = match List.rev sez with
+    | [] -> veriga
+    | x :: xs -> aux xs (vstavi x veriga)
+  in
+  aux (naberi veriga) (Filter(f, [], izprazni veriga))
+
+let je_sod = fun x -> (x mod 2 = 0)
