@@ -128,4 +128,97 @@ let f = fun x -> x + 1
 
 (* d *)
 
-(* let splosci g_sez =  *)
+let splosci g_sez = 
+	let rec aux g_sez = match g_sez with
+	| [] -> []
+	| Element(a) :: xs -> a :: aux xs
+	| Podseznam(ys) :: xs -> (aux ys) @ (aux xs)
+	in aux g_sez
+
+
+(* vrjetno je tr, testiral na loger_list_gen 10000 in je delalo *)
+let splosci_tr_mogoce g_sez =
+	let rec aux g_sez acc = match g_sez with
+	| [] -> acc
+	| Element(a) :: xs -> aux xs (a :: acc)
+	| Podseznam(ys) :: xs -> aux xs (List.rev_append (List.rev (aux ys [])) acc) (* zadnji oklepaj je enak (aux ys []) @ acc *)
+	in (aux g_sez []) |> List.rev
+
+let long_list_gen n =
+	let rec aux n acc = match n with
+	| 0 -> acc
+	| n -> aux (n - 1) ((Podseznam([Element(Random.int 100)])) :: acc)
+	in aux n []
+
+let longer_list_gen n = 
+	let rec aux n acc = match n with
+	| 0 -> acc
+	| n -> aux (n - 1) (Podseznam(long_list_gen n) :: acc)
+	in (aux n []) |> List.rev
+	
+(* 
+
+List.rev l1 @ l2 = List.rev_append l1 l2 
+l1 @ l2 = List.rev_append (List.rev l1) l2
+
+(aux ys []) @ acc = List.rev_append (List.rev (aux ys [])) acc
+
+*)
+
+(* e *)
+
+(* state :
+	0 pomeni prejsnji element je bil kostruktorja Element of 'a
+	1 pomeni prejsnji element je bil kostruktorja Podseznam of 'a list
+ *)
+
+let alternirajoci_konstruktorji' g_sez = 
+
+	let rec aux xs state = match xs with
+		| [] -> true
+		| Element(_) :: xs' -> 
+			if state = 0 then false else aux xs' 0
+		| Podseznam(_) :: xs' ->
+			if state = 1 then false else aux xs' 1 
+	in 
+	let loci g_sez = match g_sez with
+	| [] -> true
+	| Element(a) :: xs -> aux xs 0
+	| Podseznam(ys) :: xs -> aux xs 1
+	in loci g_sez
+
+
+let rec alt xs state = match xs with
+		| [] -> true
+		| Element(_) :: xs' -> 
+			if state = 0 then false else alt xs' 0
+		| Podseznam(_) :: xs' ->
+			if state = 1 then false else alt xs' 1 
+
+let alternirajoci_konstruktorji = function
+	| [] -> true
+	| Element(a) :: xs -> alt xs 0
+	| Podseznam(ys) :: xs -> alt xs 1
+
+let alt_test = [Element(1); Podseznam([]); Element(1); Podseznam([])] 
+let alt_test2 = [Podseznam([]); Element(1); Podseznam([])] 
+
+(* f *)
+
+(* ne-repno rekurzivna resitev (zaradi splosci) *)
+let zlozi_preko_gnezdenja_not_tr f a g_sez = List.fold_left f a (splosci g_sez)
+
+(* fold_left f a [b_1; b_2 ... ; bn] = f (... (f (f a b_1) b_2) ...) b_n  *)
+
+(* 
+(* poskus repno rekurzivne resitve *)
+let zlozi_preko_gnezdenja f a g_sez =
+	let rec aux f a g_sez acc = match g_sez with
+	(* v acc bo najbolj zadnji rezultat (f a g_i) *)
+	| [] -> acc
+	| Element(x) :: xs -> aux f acc xs (f acc x)
+	| Podseznam(ys) :: xs -> aux f acc (ys @ xs) (f acc )
+	 *)
+
+(* tr je odvisna od splosci_tr_mogoce *)
+let zlozi_preko_gnezdenja_tr_mogoce f a g_sez = List.fold_left f a (splosci_tr_mogoce g_sez)
