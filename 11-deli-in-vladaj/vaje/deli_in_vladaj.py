@@ -27,7 +27,36 @@
 #     [10, 2, 0, 4, 11, 15, 17, 5, 18]
 ###############################################################################
 
+def pivot(a, start, end):
+    pivot = a[start]
+    sez = [pivot]
+    for x in a:
+        i = a.index(x)
+        i_pivot = sez.index(pivot)
+        if i < start:
+            sez.insert(0,x)
+        elif i >= start and i <= end:
+            if x < pivot:
+                sez.insert(i_pivot, x)
+            elif x == pivot:
+                pass
+            else:
+                sez.insert(i_pivot + 1,x)
+        else:
+            sez.append(x)
+    a = sez.copy()
+    return a
+        
+a = [10, 4, 5, 15, 11, 2, 17, 0, 18]
+pivot(a, 1, 7)
+    
 
+def change(a):
+    a = [1,2].copy()
+    return a
+
+def f(a):
+    a.append(0)
 
 ###############################################################################
 # V tabeli želimo poiskati vrednost k-tega elementa po velikosti.
