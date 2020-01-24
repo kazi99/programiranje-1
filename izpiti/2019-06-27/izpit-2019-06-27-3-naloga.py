@@ -44,7 +44,10 @@ def vsa_natovarjanja(nosilnost):
                             trenutni_nacini.insert(0, nacin)
                     
             return trenutni_nacini 
-            
+
     return vsi_nacini(nosilnost, min(ZABOJNIKI))
 
 vsa_natovarjanja(4)
+
+k = 3
+print(st_natovarjanj(k) == len(vsa_natovarjanja(k)))
