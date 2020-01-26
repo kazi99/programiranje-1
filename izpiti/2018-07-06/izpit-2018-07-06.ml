@@ -10,10 +10,11 @@ let ibaropu a f = f a
 
 (* c *)
 
+(* zgleda tr in deluje na primerih dolzine 100000 *)
 let zacetnih n xs =
 	if List.length xs >= n then 
   	let rec aux n xs acc = match xs with
-		| [] -> acc
+		| [] -> List.rev acc
 		| x :: xs' when n > 0 -> aux (n - 1) xs' (x :: acc)
 		| x :: xs' -> acc
 		in Some (aux n xs [])
