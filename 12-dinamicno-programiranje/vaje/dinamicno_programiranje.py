@@ -53,3 +53,54 @@ def max_cheese(cheese):
     return memo[0][0]
 
 max_cheese(test_matrix)
+
+"""
+ Rešujemo problem sestavljanja alternirajoče obarvanih stolpov. Imamo štiri
+ različne tipe gradnikov, dva modra in dva rdeča. Modri gradniki so višin 2 in
+ 3, rdeči pa višin 1 in 2.
+
+ Funkcija [alternating_towers] za podano višino vrne število različnih stolpov
+ dane višine, ki jih lahko zgradimo z našimi gradniki, kjer se barva gradnikov
+ v stolpu izmenjuje (rdeč na modrem, moder na rdečem itd.). Začnemo z gradnikom
+ poljubne barve.
+"""
+
+def alternating_towers(height):
+    @lru_cache(maxsize=None)
+    def modri(visina):
+        if visina <= 1:
+            return 0
+        elif visina == 2: # (mm) -> 1 
+            return 1
+        elif visina == 3: # (mmm), (mm)(r) -> 2
+            return 2
+        else:
+            return rdeci(visina - 3) + rdeci(visina - 2)
+
+    @lru_cache(maxsize=None)
+    def rdeci(visina):
+        if visina <= 0:
+            return 0
+        elif visina == 1: # (r) -> 1
+            return 1
+        elif visina == 2: # (rr) -> 1
+            return 1
+        else:
+            return modri(visina - 1) + modri(visina - 2)
+
+    return modri(height) + rdeci(height)    
+
+
+def f(x):
+    if x == 0:
+        return 1
+    else:
+        return g(x)
+
+def g(x):
+    if x == 1:
+        return 1
+    else:
+        return f(x)
+
+f(1)
