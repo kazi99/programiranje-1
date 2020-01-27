@@ -84,3 +84,10 @@ let g = fun x -> f x
 (* 13-memoizacija 
     • robotkov pobeg (dodatne_vaje.py)
 *)
+
+(* 
+    - Lists in Ocaml
+        https://caml.inria.fr/pub/docs/manual-ocaml/libref/List.html 
+    - Random in Ocaml
+        https://caml.inria.fr/pub/docs/manual-ocaml/libref/Random.html        
+*)
