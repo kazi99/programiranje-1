@@ -1,7 +1,7 @@
 mocvirje1 = [2,4,1,2,1,3,1,1,5]
 mocvirje2 = [4,1,8,2,11,1,1,1,1,1]
 
-# pobeg(mocvirje) = min (pob(mocv[1:]), pob(mocv[2:]), ... pob(mocv[energija:]))
+# pobeg(mocvirje) = 1 + min (pob(mocv[1:]), pob(mocv[2:]), ... pob(mocv[energija:]))
 
 from functools import lru_cache
 
