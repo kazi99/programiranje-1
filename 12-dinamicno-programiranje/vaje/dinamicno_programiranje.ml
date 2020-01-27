@@ -96,14 +96,25 @@ let max_cheese cheese =
  - : int = 35
 [*----------------------------------------------------------------------------*)
 
-let alternating_towers level = 
-  let rec modri l = 
-    1
-  and rdeci l = 
-    modri 1
+let alternating_towers height =
+  let rec redtop height =
+    if height <= 0 then 
+      0
+    else if height <= 2 then 
+      1
+    else
+      bluetop (height-1) + bluetop (height-2)
+  and bluetop height =
+    if height <= 0 then 
+      0
+    else if height = 2 then 
+      1
+    else if height = 3 then 
+      2
+    else
+      redtop (height-2) + redtop (height-3)
   in
-  1
-
+  redtop height + bluetop height
 
 (*----------------------------------------------------------------------------*]
  Na nagradni igri ste zadeli kupon, ki vam omogoča, da v Mercatorju kupite
