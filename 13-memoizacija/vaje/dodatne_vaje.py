@@ -87,3 +87,31 @@ def pobeg(matrika, vr, st, gorivo):
     return pobeg_aux((vr, st), gorivo)
 
 print(pobeg(soba, 1, 0, 100))
+
+# -------------------------------------------------------------
+# uradna resitev
+
+def pobeg(soba, pozicija, koraki):
+    max_vrsta = len(soba)
+    max_stolpec = len(soba[0])
+    # Pomožna funkcija
+
+    @lru_cache(maxsize=None)
+    def pobegni(vrsta, stolpec, koraki):
+        # Padli smo iz sobe
+        if not (0 <= vrsta < max_vrsta) or not (0 <= stolpec < max_stolpec):
+            return False
+        # Pobeg uspesen! All hail our robot overlords!!!
+        elif soba[vrsta][stolpec] == 1:
+            return True
+        # Lahko bezimo naprej
+        elif soba[vrsta][stolpec] == 0 and koraki > 0:
+            return any(
+                [pobegni(vrsta + 1, stolpec, koraki - 1),
+                 pobegni(vrsta - 1, stolpec, koraki - 1),
+                 pobegni(vrsta, stolpec + 1, koraki - 1),
+                 pobegni(vrsta, stolpec - 1, koraki - 1)])
+        # Pristali smo na oviri ali pa nam je zmanjkalo korakov
+        else:
+            return False
+    return pobegni(pozicija[0], pozicija[1], koraki)
