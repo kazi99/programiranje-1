@@ -40,3 +40,13 @@ post(9,3,2)
 
 
 #     return aux(b, tuple(sez))
+
+
+
+# | |x| |x| |x| |x| |x|
+# |x| | |x| |x| |x| |x|
+# |x| |x| | |x| |x| |x|
+# |x| |x| |x| | |x| |x|
+# |x| |x| |x| |x| | |x|
+# |x| |x| |x| |x| |x| |
+
